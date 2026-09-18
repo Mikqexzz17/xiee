@@ -1,0 +1,2 @@
+﻿# Domyslny target jest ustalany przez srodowisko (Linux = linux-gnu, Windows = msvc)
+# Nie ustawiamy explicite zeby WSL i Windows mogly budowac bez konfliktow

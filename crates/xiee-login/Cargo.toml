@@ -1,0 +1,19 @@
+﻿[package]
+name = "xiee-login"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "xiee-login"
+path = "src/main.rs"
+
+[dependencies]
+xiee-common = { path = "../xiee-common" }
+xiee-gui = { path = "../xiee-gui" }
+egui.workspace = true
+eframe.workspace = true
+anyhow.workspace = true
+log.workspace = true
+env_logger.workspace = true
+image.workspace = true
+sha2 = "0.10"

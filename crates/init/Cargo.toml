@@ -1,0 +1,16 @@
+﻿[package]
+name = "xiee-init"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "init"
+path = "src/main.rs"
+
+[dependencies]
+xiee-common = { path = "../xiee-common" }
+anyhow.workspace = true
+log.workspace = true
+env_logger.workspace = true
+nix.workspace = true
+libc = "0.2"

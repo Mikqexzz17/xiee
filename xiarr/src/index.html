@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XIARR — Xiee Browser</title>
+    <style>
+        :root {
+            --xiee-gold: #D4A843;
+            --xiee-gold-dark: #b8902e;
+            --xiee-gold-light: #e8c060;
+            --xiee-dark: #1a1a1a;
+            --xiee-dark2: #252525;
+            --xiee-border: #3a3a3a;
+            --xiee-text: #e8e0d0;
+            --xiee-text-dim: #a09080;
+        }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--xiee-dark); color: var(--xiee-text); }
+
+        /* TABS */
+        #tabs-bar {
+            display: flex;
+            background: var(--xiee-dark2);
+            padding: 4px 4px 0 4px;
+            overflow-x: auto;
+            border-bottom: 2px solid var(--xiee-gold);
+            scrollbar-width: none;
+        }
+        .tab {
+            padding: 5px 12px;
+            background: var(--xiee-dark);
+            border: 1px solid var(--xiee-border);
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            margin-right: 2px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            min-width: 80px;
+            max-width: 160px;
+            color: var(--xiee-text-dim);
+            transition: background 0.15s;
+        }
+        .tab.active {
+            background: var(--xiee-dark2);
+            border-color: var(--xiee-gold);
+            color: var(--xiee-gold);
+            font-weight: bold;
+        }
+        .tab.sleeping { opacity: 0.55; font-style: italic; }
+        .tab-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
+        .close-tab-btn {
+            margin-left: 5px; background: transparent; border: none;
+            color: var(--xiee-text-dim); cursor: pointer; font-size: 10px; padding: 0 3px;
+        }
+        .close-tab-btn:hover { color: #ff5555; }
+        #new-tab-btn {
+            background: transparent; border: none; cursor: pointer;
+            font-size: 18px; padding: 0 10px; color: var(--xiee-gold);
+        }
+        #new-tab-btn:hover { color: var(--xiee-gold-light); }
+
+        /* TOOLBAR */
+        #toolbar {
+            display: flex;
+            padding: 5px 8px;
+            background: var(--xiee-dark2);
+            border-bottom: 1px solid var(--xiee-border);
+            align-items: center;
+            height: 38px;
+            gap: 3px;
+        }
+        #xiarr-logo {
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--xiee-gold);
+            margin-right: 6px;
+            letter-spacing: 1px;
+            user-select: none;
+        }
+        .btn {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 4px 7px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--xiee-text);
+        }
+        .btn:hover { background: var(--xiee-border); border-color: var(--xiee-gold-dark); color: var(--xiee-gold); }
+        #url-input {
+            flex-grow: 1;
+            padding: 5px 12px;
+            border: 1px solid var(--xiee-border);
+            border-radius: 14px;
+            font-size: 13px;
+            outline: none;
+            background: var(--xiee-dark);
+            color: var(--xiee-text);
+            transition: border-color 0.2s;
+        }
+        #url-input:focus { border-color: var(--xiee-gold); box-shadow: 0 0 0 2px rgba(212,168,67,0.2); }
+        #search-engine {
+            padding: 4px 6px; border-radius: 4px;
+            border: 1px solid var(--xiee-border);
+            background: var(--xiee-dark); color: var(--xiee-text);
+            font-size: 12px; cursor: pointer; outline: none;
+        }
+
+        /* BOOKMARKS */
+        #bookmarks-bar {
+            display: flex;
+            background: var(--xiee-dark2);
+            padding: 2px 8px;
+            border-bottom: 1px solid var(--xiee-border);
+            height: 24px;
+            align-items: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .bookmark-btn {
+            background: transparent; border: none; cursor: pointer;
+            font-size: 11px; padding: 2px 8px; margin-right: 2px;
+            border-radius: 10px; color: var(--xiee-text-dim);
+        }
+        .bookmark-btn:hover { background: var(--xiee-border); color: var(--xiee-gold); }
+
+        /* PROGRESS */
+        #progress-bar-container { width: 100%; height: 2px; background: transparent; position: absolute; top: 64px; z-index: 9999; }
+        #progress-bar { height: 100%; width: 0%; background: var(--xiee-gold); transition: width 0.3s ease; display: none; }
+
+        #webview-container { flex-grow: 1; position: relative; background: #fff; }
+
+        /* TERMINAL */
+        #terminal-container {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 250px;
+            background: rgba(10, 10, 10, 0.97);
+            color: var(--xiee-gold); font-family: "Courier New", monospace;
+            display: none; flex-direction: column; z-index: 10000;
+            border-top: 2px solid var(--xiee-gold);
+        }
+        #terminal-output { flex-grow: 1; padding: 10px; overflow-y: auto; font-size: 13px; white-space: pre-wrap; word-wrap: break-word; }
+        #terminal-input-container { display: flex; padding: 5px 10px; border-top: 1px solid var(--xiee-border); background: #080808; }
+        #terminal-prompt { margin-right: 8px; font-weight: bold; line-height: 24px; color: var(--xiee-gold-light); }
+        #terminal-input { flex-grow: 1; background: transparent; border: none; color: var(--xiee-gold); font-family: "Courier New", monospace; font-size: 13px; outline: none; }
+        #terminal-close-btn { position: absolute; top: 5px; right: 10px; background: transparent; color: #ff5555; border: none; font-weight: bold; cursor: pointer; font-size: 16px; }
+        #terminal-close-btn:hover { color: #ff0000; }
+    </style>
+</head>
+<body>
+    <div id="tabs-bar">
+        <div id="tabs-container" style="display:flex;"></div>
+        <button id="new-tab-btn" title="Nowa karta (Ctrl+T)">+</button>
+    </div>
+
+    <div id="toolbar">
+        <span id="xiarr-logo">XIARR</span>
+        <button class="btn" id="back-btn" title="Wstecz">⮜</button>
+        <button class="btn" id="forward-btn" title="Dalej">⮞</button>
+        <button class="btn" id="refresh-btn" title="Odswierz">⟳</button>
+        <input type="text" id="url-input" placeholder="Wpisz adres lub wyszukaj...">
+        <button class="btn" id="add-bookmark-btn" title="Dodaj zakładkę">⭐</button>
+        <button class="btn" id="reader-mode-btn" title="Tryb czytnika">📖</button>
+        <button class="btn" id="shield-btn" style="color: #4caf50" title="Tarcza Ochronna (WŁĄCZONA)">🛡️</button>
+        <button class="btn" id="dark-mode-btn" title="Tryb ciemny">🌙</button>
+        <button class="btn" id="sleep-tabs-btn" title="Uśpij karty (Zwolnij RAM)">💤</button>
+        <button class="btn" id="terminal-btn" title="Terminal (Ctrl+`)">⌨</button>
+        <select id="search-engine" title="Wyszukiwarka">
+            <option value="google">Google</option>
+            <option value="duckduckgo">DuckDuckGo</option>
+        </select>
+        <button class="btn" id="go-btn" title="Idź">Go</button>
+    </div>
+
+    <div id="bookmarks-bar"></div>
+    <div id="progress-bar-container"><div id="progress-bar"></div></div>
+    <div id="webview-container"></div>
+
+    <div id="terminal-container">
+        <button id="terminal-close-btn">✕</button>
+        <div id="terminal-output">XIARR Terminal — Xiee OS
+Wpisz /help aby zobaczyc dostepne komendy.
+</div>
+        <div id="terminal-input-container">
+            <span id="terminal-prompt">xiarr&gt;</span>
+            <input type="text" id="terminal-input" autocomplete="off" spellcheck="false">
+        </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+</body>
+</html>

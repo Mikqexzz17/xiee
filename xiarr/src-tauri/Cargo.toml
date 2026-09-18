@@ -1,0 +1,37 @@
+[workspace]
+
+[package]
+name = "app"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+license = ""
+repository = ""
+edition = "2021"
+rust-version = "1.77.2"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.6.3", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+tauri = { version = "2.11.3", features = ["unstable"] }
+tauri-plugin-log = "2"
+
+# Optymalizacja dla Release: mniejszy rozmiar pliku binarnego i wiÄ™ksza prÄ™dkoĹ›Ä‡
+[profile.release]
+panic = "abort" # Przerywa dziaĹ‚anie przy bĹ‚Ä™dzie bez zbierania callstacka (mniejszy RAM)
+codegen-units = 1 # Maksymalna optymalizacja 
+lto = true # Link Time Optimization (najlepsza moĹĽliwa wydajnoĹ›Ä‡)
+opt-level = "s" # Optymalizacja pod kÄ…tem rozmiaru binarki (czÄ™sto lepsza dla pamiÄ™ci podrÄ™cznej CPU na starych urzÄ…dzeniach)
+strip = true # UsuniÄ™cie symboli debugowania
+
+

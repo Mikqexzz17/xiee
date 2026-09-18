@@ -1,0 +1,19 @@
+﻿[package]
+name = "xiee-desktop"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "xiee-desktop"
+path = "src/main.rs"
+
+[dependencies]
+xiee-common = { path = "../xiee-common" }
+xiee-gui = { path = "../xiee-gui" }
+egui.workspace = true
+eframe.workspace = true
+anyhow.workspace = true
+log.workspace = true
+env_logger.workspace = true
+serde.workspace = true
+serde_json.workspace = true

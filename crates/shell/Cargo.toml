@@ -1,0 +1,15 @@
+﻿[package]
+name = "xiee-shell"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "xiee-shell"
+path = "src/main.rs"
+
+[dependencies]
+xiee-common = { path = "../xiee-common" }
+anyhow.workspace = true
+log.workspace = true
+env_logger.workspace = true
+nix.workspace = true

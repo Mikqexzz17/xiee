@@ -1,0 +1,12 @@
+﻿[package]
+name = "xiee-gui"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+egui.workspace = true
+eframe.workspace = true
+image.workspace = true
+anyhow.workspace = true
+log.workspace = true
+xiee-common = { path = "../xiee-common" }

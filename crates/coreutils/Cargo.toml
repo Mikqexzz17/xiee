@@ -1,0 +1,20 @@
+﻿[package]
+name = "xiee-coreutils"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "xls"
+path = "src/bin/xls.rs"
+
+[[bin]]
+name = "xcat"
+path = "src/bin/xcat.rs"
+
+[[bin]]
+name = "xecho"
+path = "src/bin/xecho.rs"
+
+[dependencies]
+xiee-common = { path = "../xiee-common" }
+anyhow.workspace = true
