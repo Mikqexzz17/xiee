@@ -1,0 +1,14 @@
+﻿[package]
+name = "xiee-splash"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "xiee-splash"
+path = "src/main.rs"
+
+[dependencies]
+xiee-gui = { path = "../xiee-gui" }
+egui.workspace = true
+eframe.workspace = true
+env_logger.workspace = true

@@ -1,0 +1,14 @@
+﻿[package]
+name = "xnotify"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "xnotify"
+path = "src/main.rs"
+
+[dependencies]
+xiee-gui = { path = "../xiee-gui" }
+egui.workspace = true
+eframe.workspace = true
+env_logger.workspace = true

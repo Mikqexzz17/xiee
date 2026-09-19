@@ -16,7 +16,7 @@ pub struct Service {
 const SERVICES: &[Service] = &[
     Service {
         name: "login",
-        command: "/usr/bin/xiee-login",
+        command: "/usr/bin/xiee-splash",
         args: &[],
         critical: true,
     },

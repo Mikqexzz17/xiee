@@ -1,4 +1,4 @@
-//! Xiee OS — Ekran logowania
+﻿//! Xiee OS â€” Ekran logowania
 //! Pierwsze uruchomienie: ustaw haslo
 //! Kolejne: zaloguj sie
 
@@ -87,7 +87,7 @@ impl eframe::App for LoginApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Tapeta w tle
         egui::CentralPanel::default()
-            .frame(egui::Frame::none().fill(Color32::from_rgb(20, 30, 50)))
+            .frame(egui::Frame::NONE.fill(Color32::from_rgb(20, 30, 50)))
             .show(ctx, |ui| {
                 if let Some(tex) = &self.wallpaper {
                     ui.image((tex.id(), ui.available_size()));
@@ -96,7 +96,7 @@ impl eframe::App for LoginApp {
 
         // Przyciemnij tlo
         egui::CentralPanel::default()
-            .frame(egui::Frame::none().fill(Color32::from_rgba_premultiplied(0, 0, 0, 120)))
+            .frame(egui::Frame::NONE.fill(Color32::from_rgba_premultiplied(0, 0, 0, 120)))
             .show(ctx, |ui| {
                 let screen_rect = ui.max_rect();
 
@@ -109,7 +109,7 @@ impl eframe::App for LoginApp {
                             .collapsible(false)
                             .fixed_size([360.0, 480.0])
                             .anchor(Align2::CENTER_CENTER, Vec2::ZERO)
-                            .frame(egui::Frame::none()
+                            .frame(egui::Frame::NONE
                                 .fill(Color32::from_rgba_premultiplied(10, 10, 20, 230))
                                 .corner_radius(egui::CornerRadius::same(16))
                                 .inner_margin(egui::Margin::same(32)))
@@ -186,7 +186,7 @@ impl eframe::App for LoginApp {
                             .collapsible(false)
                             .fixed_size([340.0, 420.0])
                             .anchor(Align2::CENTER_CENTER, Vec2::new(offset, 0.0))
-                            .frame(egui::Frame::none()
+                            .frame(egui::Frame::NONE
                                 .fill(Color32::from_rgba_premultiplied(10, 10, 20, 230))
                                 .corner_radius(egui::CornerRadius::same(16))
                                 .inner_margin(egui::Margin::same(32)))
@@ -209,6 +209,8 @@ impl eframe::App for LoginApp {
                                             .hint_text("Haslo...")
                                             .font(FontId::proportional(15.0))
                                     );
+                                    // Ustaw fokus od razu przy starcie
+                                    resp.request_focus();
 
                                     if !error.is_empty() {
                                         ui.add_space(6.0);
@@ -217,7 +219,7 @@ impl eframe::App for LoginApp {
 
                                     ui.add_space(16.0);
                                     let btn = ui.add_sized([260.0, 42.0], egui::Button::new(
-                                        RichText::new("Zaloguj  →").size(16.0).strong()
+                                        RichText::new("Zaloguj  â†’").size(16.0).strong()
                                     ));
 
                                     let enter = ctx.input(|i| i.key_pressed(egui::Key::Enter));

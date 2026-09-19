@@ -1,14 +1,17 @@
 //! Launcher — menu aplikacji Xiee OS
 
-use egui::{Align2, Area, Color32, CornerRadius, Frame, Order, RichText, Stroke, Vec2};
+use egui::{Align2, Color32, CornerRadius, Frame, Order, RichText, Stroke, Vec2};
 use xiee_gui::theme::XieeColors;
 
 pub fn show_launcher(ctx: &egui::Context, open: &mut bool) {
-    Area::new(egui::Id::new("launcher"))
+    // Zamknij launcher jesli kliknieto poza nim
+    let launcher_id = egui::Id::new("launcher");
+
+    let resp = Area::new(launcher_id)
         .anchor(Align2::LEFT_BOTTOM, Vec2::new(0.0, -72.0))
         .order(Order::Foreground)
         .show(ctx, |ui| {
-            Frame::none()
+            Frame::NONE
                 .fill(XieeColors::LAUNCHER_BG)
                 .corner_radius(CornerRadius::same(8))
                 .inner_margin(egui::Margin::same(16))
@@ -23,11 +26,11 @@ pub fn show_launcher(ctx: &egui::Context, open: &mut bool) {
                     ui.add_space(8.0);
 
                     let apps = [
-                        ("X  XIAC", "Centrum aplikacji"),
-                        ("O  XIARR", "Przegladarka"),
+                        ("X  XIAC",     "Centrum aplikacji"),
+                        ("O  XIARR",    "Przegladarka"),
                         ("Y  xihh key", "Manager klastra"),
-                        ("w  WINYY", "Ustawienia"),
-                        ("📁  XFM", "Menedzer plikow"),
+                        ("w  WINYY",    "Ustawienia"),
+                        ("📁  XFM",     "Menedzer plikow"),
                         (">_ Terminal", "Xiee Shell"),
                     ];
 
@@ -50,4 +53,12 @@ pub fn show_launcher(ctx: &egui::Context, open: &mut bool) {
                     }
                 });
         });
+
+    // Jesli kliknieto gdzies poza launcherem — zamknij go
+    let clicked_outside = ctx.input(|i| i.pointer.any_click())
+        && !resp.response.hovered();
+
+    if clicked_outside {
+        *open = false;
+    }
 }

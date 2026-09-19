@@ -4,7 +4,7 @@ use anyhow::Result;
 use eframe::egui;
 use egui::{CentralPanel, Align2};
 use xiee_gui::theme;
-use std::time::{SystemTime, UNIX_EPOCH};
+use chrono::Local;
 
 mod launcher;
 mod taskbar;
@@ -41,17 +41,13 @@ impl XieeDesktop {
 }
 
 fn current_time_str() -> String {
-    let secs = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_secs();
-    format!("{:02}:{:02}", (secs / 3600) % 24, (secs / 60) % 60)
+    Local::now().format("%H:%M").to_string()
 }
 
 impl eframe::App for XieeDesktop {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         CentralPanel::default()
-            .frame(egui::Frame::none().fill(egui::Color32::from_rgb(30, 40, 60)))
+            .frame(egui::Frame::NONE.fill(egui::Color32::from_rgb(30, 40, 60)))
             .show(ctx, |ui| {
                 if let Some(tex) = &self.wallpaper {
                     ui.image((tex.id(), ui.available_size()));
