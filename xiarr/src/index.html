@@ -190,5 +190,38 @@ Wpisz /help aby zobaczyc dostepne komendy.
         </div>
     </div>
     <script type="module" src="/main.js"></script>
+
+    <!-- XIARR: Dialog pobierania -->
+    <div id="xiarr-download-dialog" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;">
+      <div style="background:#1e1e1e;border:2px solid #D4A843;border-radius:12px;padding:28px 32px;min-width:360px;max-width:480px;font-family:sans-serif;color:#e8e0d0;">
+        <div style="font-size:20px;margin-bottom:8px;">&#128229; Pobieranie pliku</div>
+        <div style="color:#D4A843;font-weight:bold;font-size:15px;margin-bottom:4px;" id="dl-filename"></div>
+        <div style="color:#888;font-size:11px;margin-bottom:18px;word-break:break-all;" id="dl-url"></div>
+        <div style="color:#aaa;font-size:13px;margin-bottom:20px;">Plik zostanie zapisany do:<br><span style="color:#D4A843;">/root/Downloads/</span><br><span style="color:#888;font-size:11px;">Widoczny w XFM po pobraniu.</span></div>
+        <div style="display:flex;gap:12px;">
+          <button id="dl-accept" style="flex:1;padding:10px;background:#D4A843;color:#111;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">&#10003; Pobierz</button>
+          <button id="dl-cancel" style="flex:1;padding:10px;background:#333;color:#e8e0d0;border:1px solid #555;border-radius:8px;font-size:14px;cursor:pointer;">&#10005; Anuluj</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- XIARR: Pasek postepu -->
+    <div id="dl-progress" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:#1e1e1e;border:1px solid #D4A843;border-radius:10px;padding:14px 20px;color:#e8e0d0;font-family:sans-serif;min-width:260px;">
+      <div style="font-size:13px;margin-bottom:8px;">&#8681; Pobieranie: <span id="dl-progress-name" style="color:#D4A843;font-weight:bold;"></span></div>
+      <div style="height:4px;background:#333;border-radius:2px;overflow:hidden;"><div style="height:100%;background:linear-gradient(90deg,#D4A843,#e8c060);animation:dl-anim 1.4s ease-in-out infinite;"></div></div>
+    </div>
+
+    <!-- XIARR: Sukces pobierania -->
+    <div id="dl-success" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:#1e1e1e;border:1px solid #4CAF50;border-radius:10px;padding:14px 20px;color:#e8e0d0;font-family:sans-serif;">
+      <div style="color:#4CAF50;font-weight:bold;margin-bottom:4px;">&#10003; Pobrano pomyslnie</div>
+      <div id="dl-success-name" style="font-size:13px;color:#D4A843;"></div>
+      <div style="font-size:11px;color:#888;margin-top:4px;">XFM &#8594; /root/Downloads</div>
+    </div>
+
+    <style>
+      @keyframes dl-anim { 0%{transform:translateX(-100%)} 100%{transform:translateX(200%)} }
+      #dl-progress .dl-bar-inner { animation: dl-anim 1.4s ease-in-out infinite; }
+    </style>
+
 </body>
 </html>

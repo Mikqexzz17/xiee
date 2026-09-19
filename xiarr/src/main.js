@@ -581,4 +581,84 @@ terminalInput.addEventListener("keydown", (e) => {
     }
 });
 
+// ============================================================
+// XIARR — Pobieranie plikow
+// ============================================================
 
+// Wykryj linki do pobierania (klikniecia na linki z atrybutem download
+// lub rozszerzenia plikow binarnych)
+const DOWNLOAD_EXTENSIONS = [
+  'zip','tar','gz','bz2','xz','7z','rar',
+  'exe','deb','rpm','AppImage','iso',
+  'pdf','mp3','mp4','mkv','avi','mov',
+  'png','jpg','jpeg','gif','webp',
+  'apk','dmg'
+];
+
+function isDownloadUrl(url) {
+  try {
+    const path = new URL(url).pathname.toLowerCase();
+    return DOWNLOAD_EXTENSIONS.some(ext => path.endsWith('.' + ext));
+  } catch { return false; }
+}
+
+function getFilenameFromUrl(url) {
+  try {
+    const path = new URL(url).pathname;
+    const parts = path.split('/');
+    const name = parts[parts.length - 1];
+    return name || 'plik';
+  } catch { return 'plik'; }
+}
+
+function showDownloadDialog(url, filename) {
+  const dialog = document.getElementById('xiarr-download-dialog');
+  document.getElementById('dl-filename').textContent = filename;
+  document.getElementById('dl-url').textContent = url.length > 60 ? url.slice(0, 60) + '...' : url;
+  dialog.style.display = 'flex';
+
+  document.getElementById('dl-accept').onclick = async () => {
+    dialog.style.display = 'none';
+    document.getElementById('dl-progress').style.display = 'block';
+    document.getElementById('dl-progress-name').textContent = filename;
+
+    try {
+      const { invoke } = window.__TAURI__.core;
+      const result = await invoke('accept_download', { url, filename });
+      document.getElementById('dl-progress').style.display = 'none';
+      showDownloadSuccess(filename);
+    } catch (err) {
+      document.getElementById('dl-progress').style.display = 'none';
+      alert('Blad pobierania: ' + err);
+    }
+  };
+
+  document.getElementById('dl-cancel').onclick = () => {
+    dialog.style.display = 'none';
+  };
+}
+
+function showDownloadSuccess(filename) {
+  const notif = document.getElementById('dl-success');
+  document.getElementById('dl-success-name').textContent = filename;
+  notif.style.display = 'block';
+  setTimeout(() => { notif.style.display = 'none'; }, 3500);
+}
+
+// Podpnij sie pod klikniecia w zakladkach webview
+// WebView wychwytuje eventy przez postMessage z iframem
+// Dla linkow w glownym oknie monitorujemy klikniecia
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a');
+  if (!a) return;
+  const href = a.href;
+  if (!href) return;
+
+  const hasDownloadAttr = a.hasAttribute('download');
+  if (hasDownloadAttr || isDownloadUrl(href)) {
+    e.preventDefault();
+    e.stopPropagation();
+    const filename = a.getAttribute('download') || getFilenameFromUrl(href);
+    showDownloadDialog(href, filename);
+  }
+}, true);
