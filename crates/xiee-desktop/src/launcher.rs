@@ -1,6 +1,6 @@
 //! Launcher — menu aplikacji Xiee OS
 
-use egui::{Align2, Color32, CornerRadius, Frame, Order, RichText, Stroke, Vec2};
+use egui::{Align2, Area, Color32, CornerRadius, Frame, Order, RichText, Stroke, Vec2};
 use xiee_gui::theme::XieeColors;
 
 pub fn show_launcher(ctx: &egui::Context, open: &mut bool) {
@@ -31,6 +31,7 @@ pub fn show_launcher(ctx: &egui::Context, open: &mut bool) {
                         ("Y  xihh key", "Manager klastra"),
                         ("w  WINYY",    "Ustawienia"),
                         ("📁  XFM",     "Menedzer plikow"),
+                        ("🎮  Discord", "Komunikator"),
                         (">_ Terminal", "Xiee Shell"),
                     ];
 

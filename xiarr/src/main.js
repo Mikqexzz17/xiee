@@ -617,14 +617,19 @@ function showDownloadDialog(url, filename) {
   document.getElementById('dl-url').textContent = url.length > 60 ? url.slice(0, 60) + '...' : url;
   dialog.style.display = 'flex';
 
+  // Checkbox "Pokaz na pulpicie"
+  const desktopCheck = document.getElementById('dl-desktop-check');
+  desktopCheck.checked = false;
+
   document.getElementById('dl-accept').onclick = async () => {
+    const showOnDesktop = desktopCheck.checked;
     dialog.style.display = 'none';
     document.getElementById('dl-progress').style.display = 'block';
     document.getElementById('dl-progress-name').textContent = filename;
 
     try {
       const { invoke } = window.__TAURI__.core;
-      const result = await invoke('accept_download', { url, filename });
+      const result = await invoke('accept_download', { url, filename, showOnDesktop });
       document.getElementById('dl-progress').style.display = 'none';
       showDownloadSuccess(filename);
     } catch (err) {

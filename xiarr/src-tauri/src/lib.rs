@@ -1,9 +1,8 @@
-use std::path::PathBuf;
+﻿use std::path::PathBuf;
 use std::fs;
 
 #[tauri::command]
-fn accept_download(url: String, filename: String) -> Result<String, String> {
-    // Sciezka do Downloads
+fn accept_download(url: String, filename: String, show_on_desktop: bool) -> Result<String, String> {
     let downloads_dir = PathBuf::from("/root/Downloads");
     fs::create_dir_all(&downloads_dir).map_err(|e| e.to_string())?;
 
@@ -15,16 +14,43 @@ fn accept_download(url: String, filename: String) -> Result<String, String> {
         .output()
         .map_err(|e| e.to_string())?;
 
-    if output.status.success() {
-        // Powiadom systemowo
-        std::process::Command::new("xnotify")
-            .args(["XIARR", &format!("Pobrano: {}", filename), "info"])
-            .spawn()
-            .ok();
-        Ok(format!("Pobrano do: {}", dest.display()))
-    } else {
+    if !output.status.success() {
         let err = String::from_utf8_lossy(&output.stderr).to_string();
-        Err(format!("Blad pobierania: {}", err))
+        return Err(format!("Blad pobierania: {}", err));
+    }
+
+    // Jesli "Pokaz na pulpicie" — stworz skrot w ~/.xiee/desktop/
+    if show_on_desktop {
+        let desktop_dir = PathBuf::from("/root/.xiee/desktop");
+        fs::create_dir_all(&desktop_dir).map_err(|e| e.to_string())?;
+
+        // Format: nazwa|komenda_lub_sciezka|ikona
+        let icon = guess_icon(&filename);
+        let shortcut_name = filename.replace(' ', "_").replace('/', "_");
+        let shortcut_path = desktop_dir.join(format!("{}.shortcut", shortcut_name));
+        let content = format!("{}|xdg-open {}|{}", filename, dest.display(), icon);
+        fs::write(&shortcut_path, content).map_err(|e| e.to_string())?;
+    }
+
+    // Powiadomienie systemowe
+    std::process::Command::new("xnotify")
+        .args(["XIARR", &format!("Pobrano: {}", filename), "info"])
+        .spawn()
+        .ok();
+
+    Ok(format!("Pobrano: {}", dest.display()))
+}
+
+fn guess_icon(filename: &str) -> &'static str {
+    let ext = filename.rsplit('.').next().unwrap_or("").to_lowercase();
+    match ext.as_str() {
+        "pdf"                         => "📕",
+        "zip" | "tar" | "gz" | "xz"  => "📦",
+        "mp3" | "ogg" | "wav"         => "🎵",
+        "mp4" | "mkv" | "avi"         => "🎬",
+        "jpg" | "jpeg" | "png" | "gif" => "🖼",
+        "deb" | "rpm" | "AppImage"    => "⚙",
+        _                             => "📄",
     }
 }
 

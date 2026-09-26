@@ -1,8 +1,8 @@
-﻿//! XIAC — Xi App Center
+//! XIAC — Xi App Center
 //! Manager pakietow dla Xiee OS z interfejsem graficznym
 
 use eframe::egui;
-use egui::{CentralPanel, Color32, RichText, ScrollArea, TopBottomPanel, Vec2};
+use egui::{CentralPanel, Color32, RichText, ScrollArea, TopBottomPanel};
 use xiee_gui::theme::{XieeColors, apply_xiee_theme};
 
 fn main() {
