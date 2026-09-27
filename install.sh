@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # install.sh - Instaluje Xiee OS binaria do /usr/bin
 # Uruchom jako root: sudo ./install.sh
 
@@ -17,7 +17,7 @@ fi
 echo "=== Instalacja Xiee OS v0.1.0 ==="
 echo ""
 
-BINS=(xiee-login xiee-desktop xiee-shell xiac xihh-key xfm winyy init xls xcat xecho)
+BINS=(xiee-login xiee-desktop xiee-shell xiee-splash xiac xihh-key xfm winyy xnotify xiee-installer init xls xcat xecho)
 for bin in "${BINS[@]}"; do
     if [ -f "$RELEASE/$bin" ]; then
         cp "$RELEASE/$bin" /usr/bin/"$bin"

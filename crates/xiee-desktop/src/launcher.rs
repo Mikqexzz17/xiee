@@ -26,13 +26,14 @@ pub fn show_launcher(ctx: &egui::Context, open: &mut bool) {
                     ui.add_space(8.0);
 
                     let apps = [
-                        ("X  XIAC",     "Centrum aplikacji"),
-                        ("O  XIARR",    "Przegladarka"),
-                        ("Y  xihh key", "Manager klastra"),
-                        ("w  WINYY",    "Ustawienia"),
-                        ("📁  XFM",     "Menedzer plikow"),
-                        ("🎮  Discord", "Komunikator"),
-                        (">_ Terminal", "Xiee Shell"),
+                        ("X  XIAC",       "Centrum aplikacji"),
+                        ("O  XIARR",      "Przegladarka"),
+                        ("Y  xihh key",   "Manager klastra"),
+                        ("w  WINYY",      "Ustawienia"),
+                        ("📁  XFM",       "Menedzer plikow"),
+                        ("🎮  Discord",   "Komunikator"),
+                        ("⚙  Instalator", "Zainstaluj na dysk"),
+                        (">_ Terminal",   "Xiee Shell"),
                     ];
 
                     for (name, desc) in &apps {
