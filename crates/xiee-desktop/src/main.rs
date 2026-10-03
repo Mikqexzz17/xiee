@@ -1,9 +1,10 @@
-﻿//! Xiee Desktop - Glowny proces srodowiska graficznego
+//! Xiee Desktop - Glowny proces srodowiska graficznego
 
 use anyhow::Result;
 use eframe::egui;
 use egui::{CentralPanel, Align2, Color32, Vec2, Pos2};
 use xiee_gui::theme;
+use xiee_common::config::XieeConfig;
 use chrono::Local;
 use std::{fs, path::PathBuf};
 
@@ -81,15 +82,31 @@ pub struct XieeDesktop {
     desktop_icons: Vec<DesktopIcon>,
     selected_icon: Option<usize>,
     last_icon_reload: std::time::Instant,
+    config: XieeConfig,
 }
 
 impl XieeDesktop {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        let config = XieeConfig::load();
+
+        // W Ultra Lite trybie uproszczone motywy egui
+        if config.is_ultra_lite() {
+            let mut style = (*cc.egui_ctx.style()).clone();
+            style.animation_time = 0.0;
+            cc.egui_ctx.set_style(style);
+        }
+
         theme::apply_xiee_theme(&cc.egui_ctx);
-        let wallpaper = xiee_gui::wallpaper::load_wallpaper(
-            &cc.egui_ctx, "/usr/share/xiee/wallpaper.jpg",
-        ).ok();
-        // Upewnij sie ze katalog istnieje
+
+        // Tapeta tylko w trybie Normal
+        let wallpaper = if config.wallpaper {
+            xiee_gui::wallpaper::load_wallpaper(
+                &cc.egui_ctx, "/usr/share/xiee/wallpaper.jpg",
+            ).ok()
+        } else {
+            None
+        };
+
         fs::create_dir_all("/root/.xiee/desktop").ok();
         Self {
             launcher_open: false,
@@ -98,6 +115,7 @@ impl XieeDesktop {
             desktop_icons: DesktopIcon::load_all(),
             selected_icon: None,
             last_icon_reload: std::time::Instant::now(),
+            config,
         }
     }
 }
@@ -108,19 +126,33 @@ fn current_time_str() -> String {
 
 impl eframe::App for XieeDesktop {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // Odswiez ikony co 5 sekund (zeby widac bylo nowe pobrane pliki)
-        if self.last_icon_reload.elapsed().as_secs() >= 5 {
-            self.desktop_icons = DesktopIcon::load_all();
+        // Odswiez ikony (Ultra Lite: co 60s, Normal: co 5s)
+        let reload_interval = if self.config.desktop_icons {
+            self.config.clock_interval_secs.max(5)
+        } else {
+            60
+        };
+        if self.last_icon_reload.elapsed().as_secs() >= reload_interval {
+            if self.config.desktop_icons {
+                self.desktop_icons = DesktopIcon::load_all();
+            }
             self.last_icon_reload = std::time::Instant::now();
         }
 
-        // Tapeta
+        // Tlo pulpitu
+        let bg_color = if self.config.is_ultra_lite() {
+            Color32::from_rgb(10, 10, 14)   // Ultra Lite: prawie czarne, zero GPU
+        } else {
+            Color32::from_rgb(30, 40, 60)   // Normal: ciemny niebieski
+        };
+
         CentralPanel::default()
-            .frame(egui::Frame::NONE.fill(Color32::from_rgb(30, 40, 60)))
+            .frame(egui::Frame::NONE.fill(bg_color))
             .show(ctx, |ui| {
+                // Tapeta — tylko Normal mode
                 if let Some(tex) = &self.wallpaper {
                     ui.image((tex.id(), ui.available_size()));
-                } else {
+                } else if !self.config.is_ultra_lite() {
                     let rect = ui.available_rect_before_wrap();
                     ui.painter().rect_filled(rect, 0.0, Color32::from_rgb(30, 45, 80));
                     ui.painter().text(rect.center(), Align2::CENTER_CENTER, "Xiee OS",
@@ -128,54 +160,51 @@ impl eframe::App for XieeDesktop {
                         Color32::from_rgba_premultiplied(255, 255, 255, 30));
                 }
 
-                // Ikony na pulpicie — lewa gorna czesc
-                let icons = self.desktop_icons.clone();
-                for (i, icon) in icons.iter().enumerate() {
-                    let col = (i % 2) as f32;
-                    let row = (i / 2) as f32;
-                    let x = 24.0 + col * 100.0;
-                    let y = 24.0 + row * 100.0;
-                    let icon_rect = egui::Rect::from_min_size(
-                        Pos2::new(x, y),
-                        Vec2::new(80.0, 80.0),
-                    );
-
-                    let is_selected = self.selected_icon == Some(i);
-                    let resp = ui.allocate_rect(icon_rect, egui::Sense::click());
-
-                    // Tlo ikony gdy zaznaczona
-                    if is_selected || resp.hovered() {
-                        ui.painter().rect_filled(
-                            icon_rect,
-                            egui::CornerRadius::same(8),
-                            Color32::from_rgba_premultiplied(212, 168, 67, 50),
+                // Ikony na pulpicie — wylaczone w Ultra Lite
+                if self.config.desktop_icons {
+                    let icons = self.desktop_icons.clone();
+                    for (i, icon) in icons.iter().enumerate() {
+                        let col = (i % 2) as f32;
+                        let row = (i / 2) as f32;
+                        let x = 24.0 + col * 100.0;
+                        let y = 24.0 + row * 100.0;
+                        let icon_rect = egui::Rect::from_min_size(
+                            Pos2::new(x, y),
+                            Vec2::new(80.0, 80.0),
                         );
-                    }
 
-                    // Emoji ikony
-                    ui.painter().text(
-                        Pos2::new(x + 40.0, y + 30.0),
-                        Align2::CENTER_CENTER,
-                        &icon.icon,
-                        egui::FontId::proportional(28.0),
-                        Color32::WHITE,
-                    );
+                        let is_selected = self.selected_icon == Some(i);
+                        let resp = ui.allocate_rect(icon_rect, egui::Sense::click());
 
-                    // Nazwa ikony
-                    ui.painter().text(
-                        Pos2::new(x + 40.0, y + 62.0),
-                        Align2::CENTER_CENTER,
-                        &icon.name,
-                        egui::FontId::proportional(11.0),
-                        Color32::WHITE,
-                    );
+                        if is_selected || resp.hovered() {
+                            ui.painter().rect_filled(
+                                icon_rect,
+                                egui::CornerRadius::same(8),
+                                Color32::from_rgba_premultiplied(212, 168, 67, 50),
+                            );
+                        }
 
-                    if resp.clicked() {
-                        self.selected_icon = Some(i);
-                    }
-                    if resp.double_clicked() {
-                        icon.launch();
-                        self.selected_icon = None;
+                        ui.painter().text(
+                            Pos2::new(x + 40.0, y + 30.0),
+                            Align2::CENTER_CENTER,
+                            &icon.icon,
+                            egui::FontId::proportional(28.0),
+                            Color32::WHITE,
+                        );
+
+                        ui.painter().text(
+                            Pos2::new(x + 40.0, y + 62.0),
+                            Align2::CENTER_CENTER,
+                            &icon.name,
+                            egui::FontId::proportional(11.0),
+                            Color32::WHITE,
+                        );
+
+                        if resp.clicked() { self.selected_icon = Some(i); }
+                        if resp.double_clicked() {
+                            icon.launch();
+                            self.selected_icon = None;
+                        }
                     }
                 }
             });
@@ -212,6 +241,8 @@ impl eframe::App for XieeDesktop {
             taskbar::TaskbarAction::None => {}
         }
 
-        ctx.request_repaint_after(std::time::Duration::from_secs(5));
+        // Ultra Lite: odswiez co 30s. Normal: co 5s.
+        let repaint = std::time::Duration::from_secs(self.config.clock_interval_secs);
+        ctx.request_repaint_after(repaint);
     }
 }

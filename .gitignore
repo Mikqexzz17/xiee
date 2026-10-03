@@ -1,3 +1,13 @@
 ﻿/target
 Cargo.lock
 *.log
+
+# Artefakty budowania ISO
+rootfs/
+/var/xiee-rootfs/
+/var/xiee-iso/
+*.iso
+iso-staging/
+
+# Rust build
+target/
